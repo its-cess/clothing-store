@@ -1,15 +1,16 @@
 import { compose, createStore, applyMiddleware } from "redux";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-
 import logger from "redux-logger";
+import thunk from "redux-thunk";
 
 import { rootReducer } from "./root-reducer";
 
 //only run logger if you are in development. if in development, it will return false. filter() filters out anything false, so nothing gets run/returned in prod
-const middleWares = [process.env.NODE_ENV === "development" && logger].filter(
-  Boolean
-);
+const middleWares = [
+  process.env.NODE_ENV === "development" && logger,
+  thunk
+].filter(Boolean);
 
 //allows us to use Redux DevTools in development
 const composeEnhancer =
@@ -26,9 +27,8 @@ const persistConfig = {
   key: "root",
   //use localStorage
   storage,
-  //blacklist any reducers you don't want to persist
-  //since the "user" is coming from our authentication, we don't want to persist that and cause any errors between auth and localStorage
-  blacklist: ["user"]
+  //main thing we want to persist is the cart
+  whitelist: ["cart"]
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
